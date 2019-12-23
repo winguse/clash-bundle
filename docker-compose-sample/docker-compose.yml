@@ -1,0 +1,15 @@
+version: '3'
+services:
+  clash:
+    image: winguse/clash-bundle:latest
+    volumes:
+    - ./config.yaml:/root/.config/clash/config.yaml
+    ports:
+    - 7890:7890
+    - 7891:7891
+    - 7892:7892
+    - 9090:9090
+    restart: always
+    # When your system is Linux, you can use `network_mode: "host"` directly.
+    network_mode: bridge
+    container_name: clash-bundle

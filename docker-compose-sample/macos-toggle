@@ -1,0 +1,42 @@
+#!/bin/sh
+
+cd "`dirname $0`"
+
+NETWORK=$1
+
+if [ "$NETWORK" == "" ]
+then
+    NETWORK=Wi-Fi
+    echo No network specified, use $NETWORK for default.
+    echo
+    echo -n 'Possible values are: '
+    networksetup -listallnetworkservices
+    echo
+fi
+
+networksetup -getsocksfirewallproxy $NETWORK  | grep 'Port: 7891' > /dev/null && PROXY_ON=1
+
+if [ "$PROXY_ON" == "1" ]
+then
+    networksetup -setsocksfirewallproxy $NETWORK '' ''
+    networksetup -setsocksfirewallproxystate $NETWORK off
+    docker-compose down
+    clear
+    echo
+    echo Proxy Off
+else
+    docker-compose up -d
+    networksetup -setsocksfirewallproxy $NETWORK 127.0.0.1 7891
+    clear
+    echo
+    echo Proxy On
+	echo
+	echo 'export https_proxy=http://127.0.0.1:7890;export http_proxy=http://127.0.0.1:7890;export all_proxy=socks5://127.0.0.1:7891'
+    open http://127.0.0.1:9090/ui
+fi
+
+echo
+echo You can close this window by Command + Q.
+echo
+echo
+
